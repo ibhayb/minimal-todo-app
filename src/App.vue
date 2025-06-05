@@ -12,8 +12,8 @@ async function greet() {
 </script>
 
 <template>
-  <main class="container">
-    <h1 class="text-4xl">Welcome to Tauri + Vue</h1>
+  <main class="container justify-center items-center">
+    <h1 class="text-4xl">📝 To Do List</h1>
 
     <div class="row text-red-500 text-2xl">
       <a href="https://vitejs.dev" target="_blank">
@@ -49,6 +49,11 @@ async function greet() {
 }
 </style>
 <style>
+#app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
 :root {
   font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
   font-size: 16px;
@@ -64,13 +69,20 @@ async function greet() {
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
 }
-
+/* Center the app horizontally */
+#app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  align-items: center;
+}
 .container {
   margin: 0;
-  padding-top: 10vh;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
   text-align: center;
 }
 
