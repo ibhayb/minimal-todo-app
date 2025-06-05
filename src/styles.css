@@ -1,1 +1,30 @@
 @import "tailwindcss";
+
+
+
+/* 8Bit Game Theme */
+/* Light Theme (Default) */
+@theme {
+  --font-pixel: "Press Start 2P", cursive;
+
+  --color-game-bg: #1c1c1c;
+  --color-game-red: #ff5555;
+  --color-game-green: #50fa7b;
+  --color-game-blue: #6272a4;
+  --color-game-yellow: #f1fa8c;
+
+  --radius-default: 4px;
+  --shadow-game: 0 2px 4px rgba(0, 0, 0, 0.5);
+  --ease-pixel: steps(2, end);
+}
+
+/* Optional: Dark Theme (aktiv bei <html class="dark"> oder data-theme="dark") */
+@theme dark {
+  --color-game-bg: #000000;
+  --color-game-blue: #44475a;
+  --color-game-yellow: #ffff99;
+  --color-game-red: #ff6b6b;
+  --color-game-green: #69ff94;
+
+  --shadow-game: 0 2px 6px rgba(255, 255, 255, 0.1);
+}

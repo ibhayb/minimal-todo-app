@@ -3,39 +3,58 @@ import { ref } from "vue";
 import { invoke } from "@tauri-apps/api/core";
 
 const greetMsg = ref("");
-const name = ref("");
+const newTodo = ref("");
+const todoList = ref<string[]>([]);
 
 async function greet() {
   // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-  greetMsg.value = await invoke("greet", { name: name.value });
+  greetMsg.value = await invoke("greet", { newTodo: newTodo.value });
+}
+
+async function addTodo() {
+  if (newTodo.value.trim() === "") {
+    // Prevent adding empty todos
+    return;
+  }
+  todoList.value.push(newTodo.value);
+  newTodo.value = ""; // Clear the input field after adding the todo
 }
 </script>
 
 <template>
-  <main class="container justify-center items-center">
-    <h1 class="text-4xl">📝 To Do List</h1>
+  <main class="m-0 h-screen p-10 flex flex-col gap-10 font-pixel">
+    <h1 class="text-4xl">To Do List</h1>
 
-    <div class="row text-red-500 text-2xl">
-      <a href="https://vitejs.dev" target="_blank">
-        <img src="/vite.svg" class="logo vite" alt="Vite logo" />
-      </a>
-      <a href="https://tauri.app" target="_blank">
-        <img src="/tauri.svg" class="logo tauri" alt="Tauri logo" />
-      </a>
-      <a href="https://vuejs.org/" target="_blank">
-        <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-      </a>
-    </div>
-    <p class="text-red-500 text-2xl">
-      If this text is red, congrats you have a Tauri+Vue+Tailwindcss setup!🚀
-    </p>
-    <p>Click on the Tauri, Vite, and Vue logos to learn more.</p>
-
-    <form class="row" @submit.prevent="greet">
-      <input id="greet-input" v-model="name" placeholder="Enter a name..." />
-      <button type="submit">Greet</button>
+    <form class="flex justify-center" @submit.prevent="addTodo">
+      <input
+        class="mx-5 bg-game-blue text-game-yellow px-4 p-2 border-2 rounded shadow focus:outline-none focus:ring-2 focus:ring-game-yellow"
+        v-model="newTodo"
+        placeholder="water plants 🪴"
+      />
+      <button
+        class="bg-game-red px-4 py-2 text-black hover:bg-game-green hover:text-black transition-all duration-150 ease-pixel"
+        type="submit"
+      >
+        Add
+      </button>
     </form>
+    <ul class="flex flex-col gap-2 bg-game-bg p-4">
+      <li
+        class="flex justify-between items-center text-game-yellow bg-game-blue px-4 p-2 rounded shadow hover:border-b-game-yellow hover:border-2"
+        v-for="(todo, index) in todoList"
+        :key="index"
+      >
+        {{ todo }}
+        <button
+          class="ml-4 bg-game-red px-2 py-1 text-black hover:bg-game-green hover:text-black transition-all duration-150 ease-pixel"
+          @click="todoList.splice(index, 1)"
+        >
+          X
+        </button>
+      </li>
+    </ul>
     <p>{{ greetMsg }}</p>
+    <div></div>
   </main>
 </template>
 
@@ -116,41 +135,6 @@ h1 {
   text-align: center;
 }
 
-input,
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  color: #0f0f0f;
-  background-color: #ffffff;
-  transition: border-color 0.25s;
-  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
-}
-
-button {
-  cursor: pointer;
-}
-
-button:hover {
-  border-color: #396cd8;
-}
-button:active {
-  border-color: #396cd8;
-  background-color: #e8e8e8;
-}
-
-input,
-button {
-  outline: none;
-}
-
-#greet-input {
-  margin-right: 5px;
-}
-
 @media (prefers-color-scheme: dark) {
   :root {
     color: #f6f6f6;
@@ -159,15 +143,6 @@ button {
 
   a:hover {
     color: #24c8db;
-  }
-
-  input,
-  button {
-    color: #ffffff;
-    background-color: #0f0f0f98;
-  }
-  button:active {
-    background-color: #0f0f0f69;
   }
 }
 </style>
