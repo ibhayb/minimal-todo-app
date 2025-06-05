@@ -3,8 +3,10 @@ import { ref } from "vue";
 import { invoke } from "@tauri-apps/api/core";
 
 const greetMsg = ref("");
-const newTodo = ref("");
-const todoList = ref<string[]>([]);
+const newTodo = ref<Todo>({
+  title: "",
+});
+const todoList = ref<Todo[]>([]);
 
 async function greet() {
   // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
@@ -12,12 +14,10 @@ async function greet() {
 }
 
 async function addTodo() {
-  if (newTodo.value.trim() === "") {
-    // Prevent adding empty todos
-    return;
-  }
-  todoList.value.push(newTodo.value);
-  newTodo.value = ""; // Clear the input field after adding the todo
+  if (newTodo.value.title.trim() === "") return;
+
+  todoList.value.push({ title: newTodo.value.title, commpleted: false });
+  newTodo.value.title = "";
 }
 </script>
 
@@ -28,7 +28,7 @@ async function addTodo() {
     <form class="flex justify-center" @submit.prevent="addTodo">
       <input
         class="mx-5 bg-game-blue text-game-yellow px-4 p-2 border-2 rounded shadow focus:outline-none focus:ring-2 focus:ring-game-yellow"
-        v-model="newTodo"
+        v-model="newTodo.title"
         placeholder="water plants 🪴"
       />
       <button
@@ -44,7 +44,7 @@ async function addTodo() {
         v-for="(todo, index) in todoList"
         :key="index"
       >
-        {{ todo }}
+        {{ todo.title }}
         <button
           class="ml-4 bg-game-red px-2 py-1 text-black hover:bg-game-green hover:text-black transition-all duration-150 ease-pixel"
           @click="todoList.splice(index, 1)"
