@@ -80,15 +80,26 @@ async function completeTodo(index: number) {
       <!-- XP Pop -->
     </ul>
     <p>{{ greetMsg }}</p>
-    <footer class="mt-auto p-4">
-      <p class="text-center text-sm text-gray-500">
+    <footer class="mt-auto p-4 text-center text-sm text-gray-500">
+      <p class="">
         Made with <span class="text-red-500">&#60;3</span> by
         <a
           class="text-blue-500 hover:underline"
-          href=""
+          href="https://ibhayb.github.io/"
           target="_blank"
           rel="noopener noreferrer"
-          >Your Name</a
+          >Ibrahim</a
+        >
+      </p>
+      <p>
+        Check out the source code on
+
+        <a
+          class="text-blue-100 hover:underline"
+          href="https://github.com/ibhayb/minimal-todo-app.git"
+          target="_blank"
+          rel="noopener noreferrer"
+          >GitHub</a
         >
       </p>
     </footer>
