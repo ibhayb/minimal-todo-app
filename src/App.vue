@@ -41,19 +41,27 @@ async function completeTodo(index: number) {
         Add
       </button>
     </form>
-    <ul class="flex flex-col gap-2 bg-game-bg p-4">
+    <ul class="flex flex-col gap-4 bg-game-bg p-4">
       <li
-        class="flex justify-between items-center text-game-yellow bg-game-blue px-4 p-2 rounded shadow hover:border-b-game-yellow hover:border-2"
+        :class="[
+          'flex justify-between items-center px-4 py-2 rounded shadow relative transition-all duration-150 ease-pixel',
+          todo.completed
+            ? 'bg-gray-800 text-gray-500 line-through opacity-60 select-none'
+            : 'bg-game-blue text-game-yellow hover:border-b-game-yellow hover:border-2',
+        ]"
         v-for="(todo, index) in todoList"
         :key="index"
       >
         {{ todo.title }}
         <div>
           <button
-            class="ml-4 bg-game-green px-2 py-1 text-black hover:bg-game-yellow hover:text-black"
+            :class="[
+              'ml-4 bg-game-green px-2 py-1 text-black hover:bg-game-yellow hover:text-black',
+              todo.completed ? 'opacity-100 pointer-events-auto' : '',
+            ]"
             @click="completeTodo(index)"
           >
-            ✓
+            {{ todo.completed ? "↺" : "✓" }}
           </button>
           <button
             class="ml-4 bg-game-red px-2 py-1 text-black hover:bg-game-yellow hover:text-black transition-all duration-150 ease-pixel"
@@ -64,7 +72,7 @@ async function completeTodo(index: number) {
         </div>
         <span
           v-if="todo.completed"
-          class="absolute right-4 top-[+5px] text-game-green font-pixel animate-xp"
+          class="absolute right-[-60px] top-[+30px] text-game-green font-pixel animate-xp font-extrabold"
         >
           +50 XP
         </span>
