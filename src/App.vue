@@ -16,8 +16,11 @@ async function greet() {
 async function addTodo() {
   if (newTodo.value.title.trim() === "") return;
 
-  todoList.value.push({ title: newTodo.value.title, commpleted: false });
+  todoList.value.push({ title: newTodo.value.title, completed: false });
   newTodo.value.title = "";
+}
+async function completeTodo(index: number) {
+  todoList.value[index].completed = !todoList.value[index].completed;
 }
 </script>
 
@@ -29,7 +32,7 @@ async function addTodo() {
       <input
         class="mx-5 bg-game-blue text-game-yellow px-4 p-2 border-2 rounded shadow focus:outline-none focus:ring-2 focus:ring-game-yellow"
         v-model="newTodo.title"
-        placeholder="water plants 🪴"
+        placeholder="learn tauri..."
       />
       <button
         class="bg-game-red px-4 py-2 text-black hover:bg-game-green hover:text-black transition-all duration-150 ease-pixel"
@@ -45,28 +48,45 @@ async function addTodo() {
         :key="index"
       >
         {{ todo.title }}
-        <button
-          class="ml-4 bg-game-red px-2 py-1 text-black hover:bg-game-green hover:text-black transition-all duration-150 ease-pixel"
-          @click="todoList.splice(index, 1)"
+        <div>
+          <button
+            class="ml-4 bg-game-green px-2 py-1 text-black hover:bg-game-yellow hover:text-black"
+            @click="completeTodo(index)"
+          >
+            ✓
+          </button>
+          <button
+            class="ml-4 bg-game-red px-2 py-1 text-black hover:bg-game-yellow hover:text-black transition-all duration-150 ease-pixel"
+            @click="todoList.splice(index, 1)"
+          >
+            X
+          </button>
+        </div>
+        <span
+          v-if="todo.completed"
+          class="absolute right-4 top-[+5px] text-game-green font-pixel animate-xp"
         >
-          X
-        </button>
+          +50 XP
+        </span>
       </li>
+      <!-- XP Pop -->
     </ul>
     <p>{{ greetMsg }}</p>
-    <div></div>
+    <footer>
+      <p class="text-center text-sm text-gray-500">
+        Made with ❤️ by
+        <a
+          class="text-blue-500 hover:underline"
+          href=""
+          target="_blank"
+          rel="noopener noreferrer"
+          >Your Name</a
+        >
+      </p>
+    </footer>
   </main>
 </template>
 
-<style scoped>
-.logo.vite:hover {
-  filter: drop-shadow(0 0 2em #747bff);
-}
-
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #249b73);
-}
-</style>
 <style>
 #app {
   display: flex;
