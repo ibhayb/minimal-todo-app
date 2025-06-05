@@ -72,9 +72,9 @@ async function completeTodo(index: number) {
       <!-- XP Pop -->
     </ul>
     <p>{{ greetMsg }}</p>
-    <footer>
+    <footer class="mt-auto p-4">
       <p class="text-center text-sm text-gray-500">
-        Made with ❤️ by
+        Made with <span class="text-red-500">&#60;3</span> by
         <a
           class="text-blue-500 hover:underline"
           href=""
