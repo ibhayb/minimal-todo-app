@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [macos-latest, ubuntu-20.04, windows-latest]
+        platform: [macos-latest, ubuntu-22.04, windows-latest]
 
     runs-on: ${{ matrix.platform }}
 
@@ -28,8 +28,18 @@ jobs:
           node-version: 16
           cache: "pnpm"
 
-      - name: Install pnpm
-        run: npm install -g pnpm
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Add pnpm to PATH (Windows fix)
+        if: matrix.platform == 'windows-latest'
+        run: echo "C:\Users\runneradmin\AppData\Roaming\npm" >> $GITHUB_PATH
+
+      - name: Install frontend dependencies
+        run: pnpm install
+        shell: bash
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
