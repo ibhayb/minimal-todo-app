@@ -22,24 +22,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node.js with pnpm cache
-        uses: actions/setup-node@v3
+      - uses: pnpm/action-setup@v4
         with:
-          node-version: 16
-          cache: "pnpm"
+          version: 9
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
+      - uses: actions/setup-node@v4
         with:
-          version: 8
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+          cache: pnpm
 
-      - name: Add pnpm to PATH (Windows fix)
-        if: matrix.platform == 'windows-latest'
-        run: echo "C:\Users\runneradmin\AppData\Roaming\npm" >> $GITHUB_PATH
-
-      - name: Install frontend dependencies
-        run: pnpm install
-        shell: bash
+      - name: Install Dependencies
+        run: pnpm i --frozen-lockfile
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
@@ -49,13 +43,10 @@ jobs:
         shell: bash
 
       - name: Install dependencies (ubuntu only)
-        if: matrix.platform == 'ubuntu-20.04'
+        if: matrix.platform == 'ubuntu-22.04'
         run: |
           sudo apt-get update
           sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
-
-      - name: Install frontend dependencies
-        run: pnpm install
 
       - uses: tauri-apps/tauri-action@v0.4
         id: tauri
