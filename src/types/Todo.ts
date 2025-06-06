@@ -1,5 +1,5 @@
 interface Todo {
-    // id: string;
+    id: number;
     title: string;
     completed: boolean;
 }

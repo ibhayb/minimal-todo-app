@@ -3,17 +3,12 @@ import { ref, onMounted } from "vue";
 import { invoke } from "@tauri-apps/api/core";
 
 const greetMsg = ref("");
-const name = ref("");
 const newTodo = ref<Todo>({
+  id: 0,
   title: "",
   completed: false,
 });
 const todoList = ref<Todo[]>([]);
-
-async function greet() {
-  // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-  greetMsg.value = await invoke("greet", { name: name.value });
-}
 
 //  Tauri Backend Calls
 
@@ -21,16 +16,25 @@ async function fetchTodos() {
   todoList.value = await invoke("get_todos");
 }
 
-async function add_todo() {
+async function addTodo() {
   if (newTodo.value.title.trim() === "") return;
   await invoke("add_todo", { title: newTodo.value.title });
   newTodo.value.title = "";
   fetchTodos(); // lädt neue Liste von Backend
 }
-async function completeTodo(index: number) {
-  todoList.value[index].completed = !todoList.value[index].completed;
+
+async function deleteTodo(id: number) {
+  await invoke("delete_todo", { id });
+  fetchTodos(); // lädt neue Liste von Backend
 }
 
+async function updateTodo(id: number) {
+  let completed =
+    todoList.value.find((todo) => todo.id === id)?.completed || false;
+
+  await invoke("update_todo", { id, completed: !completed });
+  fetchTodos(); // lädt neue Liste von Backend
+}
 onMounted(() => {
   fetchTodos();
 });
@@ -40,7 +44,7 @@ onMounted(() => {
   <main class="m-0 h-screen p-10 flex flex-col gap-10 font-pixel">
     <h1 class="text-4xl">To Do List</h1>
 
-    <form class="flex justify-center" @submit.prevent="add_todo">
+    <form class="flex justify-center" @submit.prevent="addTodo">
       <input
         class="mx-5 bg-game-blue text-game-yellow px-4 p-2 border-2 rounded shadow focus:outline-none focus:ring-2 focus:ring-game-yellow"
         v-model="newTodo.title"
@@ -71,13 +75,13 @@ onMounted(() => {
               'ml-4 bg-game-green px-2 py-1 text-black hover:bg-game-yellow hover:text-black',
               todo.completed ? 'opacity-100 pointer-events-auto' : '',
             ]"
-            @click="completeTodo(index)"
+            @click="updateTodo(todo.id)"
           >
             {{ todo.completed ? "↺" : "✓" }}
           </button>
           <button
             class="ml-4 bg-game-red px-2 py-1 text-black hover:bg-game-yellow hover:text-black transition-all duration-150 ease-pixel"
-            @click="todoList.splice(index, 1)"
+            @click="deleteTodo(todo.id)"
           >
             X
           </button>
