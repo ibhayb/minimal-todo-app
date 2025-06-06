@@ -1,34 +1,46 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { invoke } from "@tauri-apps/api/core";
 
 const greetMsg = ref("");
+const name = ref("");
 const newTodo = ref<Todo>({
   title: "",
+  completed: false,
 });
 const todoList = ref<Todo[]>([]);
 
 async function greet() {
   // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-  greetMsg.value = await invoke("greet", { newTodo: newTodo.value });
+  greetMsg.value = await invoke("greet", { name: name.value });
 }
 
-async function addTodo() {
-  if (newTodo.value.title.trim() === "") return;
+//  Tauri Backend Calls
 
-  todoList.value.push({ title: newTodo.value.title, completed: false });
+async function fetchTodos() {
+  todoList.value = await invoke("get_todos");
+}
+
+async function add_todo() {
+  if (newTodo.value.title.trim() === "") return;
+  await invoke("add_todo", { title: newTodo.value.title });
   newTodo.value.title = "";
+  fetchTodos(); // lädt neue Liste von Backend
 }
 async function completeTodo(index: number) {
   todoList.value[index].completed = !todoList.value[index].completed;
 }
+
+onMounted(() => {
+  fetchTodos();
+});
 </script>
 
 <template>
   <main class="m-0 h-screen p-10 flex flex-col gap-10 font-pixel">
     <h1 class="text-4xl">To Do List</h1>
 
-    <form class="flex justify-center" @submit.prevent="addTodo">
+    <form class="flex justify-center" @submit.prevent="add_todo">
       <input
         class="mx-5 bg-game-blue text-game-yellow px-4 p-2 border-2 rounded shadow focus:outline-none focus:ring-2 focus:ring-game-yellow"
         v-model="newTodo.title"
