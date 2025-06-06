@@ -1,24 +1,43 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { invoke } from "@tauri-apps/api/core";
 
 const greetMsg = ref("");
-const newTodo = ref("");
-const todoList = ref<string[]>([]);
+const newTodo = ref<Todo>({
+  id: 0,
+  title: "",
+  completed: false,
+});
+const todoList = ref<Todo[]>([]);
 
-async function greet() {
-  // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-  greetMsg.value = await invoke("greet", { newTodo: newTodo.value });
+//  Tauri Backend Calls
+
+async function fetchTodos() {
+  todoList.value = await invoke("get_todos");
 }
 
 async function addTodo() {
-  if (newTodo.value.trim() === "") {
-    // Prevent adding empty todos
-    return;
-  }
-  todoList.value.push(newTodo.value);
-  newTodo.value = ""; // Clear the input field after adding the todo
+  if (newTodo.value.title.trim() === "") return;
+  await invoke("add_todo", { title: newTodo.value.title });
+  newTodo.value.title = "";
+  fetchTodos(); // lädt neue Liste von Backend
 }
+
+async function deleteTodo(id: number) {
+  await invoke("delete_todo", { id });
+  fetchTodos(); // lädt neue Liste von Backend
+}
+
+async function updateTodo(id: number) {
+  let completed =
+    todoList.value.find((todo) => todo.id === id)?.completed || false;
+
+  await invoke("update_todo", { id, completed: !completed });
+  fetchTodos(); // lädt neue Liste von Backend
+}
+onMounted(() => {
+  fetchTodos();
+});
 </script>
 
 <template>
@@ -28,8 +47,8 @@ async function addTodo() {
     <form class="flex justify-center" @submit.prevent="addTodo">
       <input
         class="mx-5 bg-game-blue text-game-yellow px-4 p-2 border-2 rounded shadow focus:outline-none focus:ring-2 focus:ring-game-yellow"
-        v-model="newTodo"
-        placeholder="water plants 🪴"
+        v-model="newTodo.title"
+        placeholder="learn tauri..."
       />
       <button
         class="bg-game-red px-4 py-2 text-black hover:bg-game-green hover:text-black transition-all duration-150 ease-pixel"
@@ -38,35 +57,71 @@ async function addTodo() {
         Add
       </button>
     </form>
-    <ul class="flex flex-col gap-2 bg-game-bg p-4">
+    <ul class="flex flex-col gap-4 bg-game-bg p-4">
       <li
-        class="flex justify-between items-center text-game-yellow bg-game-blue px-4 p-2 rounded shadow hover:border-b-game-yellow hover:border-2"
+        :class="[
+          'flex justify-between items-center px-4 py-2 rounded shadow relative transition-all duration-150 ease-pixel',
+          todo.completed
+            ? 'bg-gray-800 text-gray-500 line-through opacity-60 select-none'
+            : 'bg-game-blue text-game-yellow hover:border-b-game-yellow hover:border-2',
+        ]"
         v-for="(todo, index) in todoList"
         :key="index"
       >
-        {{ todo }}
-        <button
-          class="ml-4 bg-game-red px-2 py-1 text-black hover:bg-game-green hover:text-black transition-all duration-150 ease-pixel"
-          @click="todoList.splice(index, 1)"
+        {{ todo.title }}
+        <div>
+          <button
+            :class="[
+              'ml-4 bg-game-green px-2 py-1 text-black hover:bg-game-yellow hover:text-black',
+              todo.completed ? 'opacity-100 pointer-events-auto' : '',
+            ]"
+            @click="updateTodo(todo.id)"
+          >
+            {{ todo.completed ? "↺" : "✓" }}
+          </button>
+          <button
+            class="ml-4 bg-game-red px-2 py-1 text-black hover:bg-game-yellow hover:text-black transition-all duration-150 ease-pixel"
+            @click="deleteTodo(todo.id)"
+          >
+            X
+          </button>
+        </div>
+        <span
+          v-if="todo.completed"
+          class="absolute right-[-60px] top-[+30px] text-game-green font-pixel animate-xp font-extrabold"
         >
-          X
-        </button>
+          +50 XP
+        </span>
       </li>
+      <!-- XP Pop -->
     </ul>
     <p>{{ greetMsg }}</p>
-    <div></div>
+    <footer class="mt-auto p-4 text-center text-sm text-gray-500">
+      <p class="">
+        Made with <span class="text-red-500">&#60;3</span> by
+        <a
+          class="text-blue-500 hover:underline"
+          href="https://ibhayb.github.io/"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Ibrahim</a
+        >
+      </p>
+      <p>
+        Check out the source code on
+
+        <a
+          class="text-blue-100 hover:underline"
+          href="https://github.com/ibhayb/minimal-todo-app.git"
+          target="_blank"
+          rel="noopener noreferrer"
+          >GitHub</a
+        >
+      </p>
+    </footer>
   </main>
 </template>
 
-<style scoped>
-.logo.vite:hover {
-  filter: drop-shadow(0 0 2em #747bff);
-}
-
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #249b73);
-}
-</style>
 <style>
 #app {
   display: flex;
